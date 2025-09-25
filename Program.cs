@@ -8,6 +8,7 @@ using Task.Interfaces;
 using Task.Middlewares;
 using Task.Profiles;
 using Task.Services;
+using Task.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +24,10 @@ builder.Services.AddControllers()
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddScoped<ITokenService,TokenService>();
+builder.Services.AddScoped<IPhotoService,PhotoService>();
 builder.Services.AddScoped<IMemberRepository,MemberRepository>();
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

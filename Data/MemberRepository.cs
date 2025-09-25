@@ -16,6 +16,16 @@ public class MemberRepository : IMemberRepository
         _context.Entry(member).State = EntityState.Modified;
     }
 
+    public async Task<Member?> GetMemberForUpdate(string id)
+    {
+ 
+        var member = await _context.Members
+            .Include(m=>m.AppUser)
+            .Include(m => m.Photos)
+            .SingleOrDefaultAsync(m => m.Id == id);
+        return member;
+    }
+
     public async Task<bool> SaveAllAsync()
     {
         return await _context.SaveChangesAsync() > 0;
