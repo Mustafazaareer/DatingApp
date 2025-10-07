@@ -1,7 +1,7 @@
-using Task.Entities;
-using Task.Interfaces;
+using DatingApp.Entities;
+using DatingApp.Interfaces;
 
-namespace Task.Extensions;
+namespace DatingApp.Extensions;
 
 public static class AppUserExtension
 {

@@ -1,4 +1,4 @@
-namespace Task;
+namespace DatingApp;
 
 public class WeatherForecast
 {

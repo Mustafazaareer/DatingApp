@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Task.Dtos;
+namespace DatingApp.Dtos;
 
 public class AddPhotoDto
 {

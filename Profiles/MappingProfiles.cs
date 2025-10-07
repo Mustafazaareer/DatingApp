@@ -1,8 +1,8 @@
 using AutoMapper;
-using Task.Dtos;
-using Task.Entities;
+using DatingApp.Dtos;
+using DatingApp.Entities;
 
-namespace Task.Profiles;
+namespace DatingApp.Profiles;
 
 public class MappingProfiles : Profile
 {

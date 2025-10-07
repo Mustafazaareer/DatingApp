@@ -1,10 +1,10 @@
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using DatingApp.Helpers;
+using DatingApp.Interfaces;
 using Microsoft.Extensions.Options;
-using Task.Interfaces;
-using Task.Utils;
 
-namespace Task.Services;
+namespace DatingApp.Services;
 
 public class PhotoService : IPhotoService
 {

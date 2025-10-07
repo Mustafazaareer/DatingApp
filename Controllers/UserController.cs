@@ -1,46 +1,44 @@
+using DatingApp.Controllers;
+using DatingApp.Data;
+using DatingApp.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Task.Data;
-using Task.Entities;
 
-namespace Task.Controllers;
 
-public class UserController : BaseController
+namespace DatingApp.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class UsersController(AppDbContext context) : ControllerBase
 {
-    private readonly AppDbContext _context;
-
-    public UserController(AppDbContext context)
-    {
-        _context = context;
-    }
-
     [HttpGet]
     public ActionResult<List<AppUser>> GetUsers()
     {
-        var users =  _context.Users.ToList();
+        var users = context.Users.ToList();
         return Ok(users);
     }
+
     [Authorize]
     [HttpGet("{id}")]
     public ActionResult<AppUser> GetUser(string id)
     {
-        var user = _context.Users.FindAsync(id);
+        var user = context.Users.Find(id); // sync Find
         if (user == null) return NotFound();
-        return Ok(user.Result);
+        return Ok(user);
     }
-    
-    [HttpGet("Async")]
+
+    [HttpGet("async")]
     public async Task<ActionResult<List<AppUser>>> GetUsersAsync()
     {
-        var users = await _context.Users.ToListAsync();
+        var users = await context.Users.ToListAsync();
         return Ok(users);
     }
-    
-    [HttpGet("Async/{id}")]
+
+    [HttpGet("async/{id}")]
     public async Task<ActionResult<AppUser>> GetUserAsync(string id)
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await context.Users.FindAsync(id);
         if (user == null) return NotFound();
         return Ok(user);
     }

@@ -1,6 +1,6 @@
-using Task.Entities;
+using DatingApp.Entities;
 
-namespace Task.Interfaces;
+namespace DatingApp.Interfaces;
 
 public interface ITokenService
 {

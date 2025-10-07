@@ -1,4 +1,4 @@
-namespace Task.Utils;
+namespace DatingApp.Helpers;
 
 public class CloudinarySettings
 {

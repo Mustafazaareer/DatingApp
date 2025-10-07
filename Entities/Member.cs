@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Task.Entities;
-[Table(name:"members")]
+namespace DatingApp.Entities;
+
 public class Member
 {
     public string Id { get; set; } = null!;
@@ -15,14 +15,20 @@ public class Member
     public string? Description { get; set; }
     public required string City { get; set; }
     public required string Country { get; set; }
-    
-    // Navigation Property :
+
+    // Navigation property
+    [JsonIgnore]
+    public string UserId { get; set; }
     [JsonIgnore]
     public List<Photo> Photos { get; set; } = [];
+    
+    [JsonIgnore]
+    public List<MemberLike> LikedByMembers { get; set; } = [];
+    
+    [JsonIgnore]
+    public List<MemberLike> LikedMembers { get; set; } = [];
+
     [JsonIgnore]
     [ForeignKey(nameof(Id))]
     public AppUser AppUser { get; set; } = null!;
-    [JsonIgnore]
-    public string UserId { get; set; }
-
 }

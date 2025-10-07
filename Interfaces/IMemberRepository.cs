@@ -1,14 +1,14 @@
-using Task.Entities;
+using DatingApp.Entities;
+using DatingApp.Helpers;
 
-namespace Task.Interfaces;
+namespace DatingApp.Interfaces;
 
 public interface IMemberRepository
 {
     void Update(Member member);
     Task<bool> SaveAllAsync();
-    Task<IReadOnlyList<Member>> GetAllMembersAsync();
+    Task<PaginatedResult<Member>> GetMembersAsync(MemberParams memberParams);
     Task<Member?> GetMemberByIdAsync(string id);
-    Task<IReadOnlyList<Photo>> GetAllMemberPhotosAsync(string memberId);
-    public Task<Member?> GetMemberForUpdate(string id);
-
+    Task<IReadOnlyList<Photo>> GetPhotosForMemberAsync(string memberId);
+    Task<Member?> GetMemberForUpdate(string id);
 }

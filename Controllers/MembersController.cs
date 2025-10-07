@@ -1,35 +1,38 @@
-using Microsoft.AspNetCore.Authorization;
+using DatingApp.Dtos;
+using DatingApp.Entities;
+using DatingApp.Extensions;
+using DatingApp.Helpers;
+using DatingApp.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Task.Data;
-using Task.Dtos;
-using Task.Entities;
-using Task.Interfaces;
+using Member = AutoMapper.Execution.Member;
 
-namespace Task.Controllers;
+namespace DatingApp.Controllers;
 
 
 public class MembersController(IMemberRepository memberRepository, IPhotoService photoService) : BaseController
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<Member>>> GetMembers()
+    public async Task<ActionResult<Member>> GetMembers([FromQuery] MemberParams memberParams)
     {
-        return Ok(await memberRepository.GetAllMembersAsync());
+        memberParams.CurrentMemberId = User.GetMemberId();
+        return Ok(await memberRepository.GetMembersAsync(memberParams));
 
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Member>> GetMember(string id)
+    [HttpGet("{id}")] // locahost:5001/api/members/bob-id
+    public async Task<ActionResult<Member?>> GetMember(string id)
     {
         var member = await memberRepository.GetMemberByIdAsync(id);
+
         if (member == null) return NotFound();
-        return member;
+
+        return Ok(member);
     }
 
     [HttpGet("{id}/photos")]
-    public async Task<ActionResult<IReadOnlyList<Photo>>> GetMemberPhotos(string id)
+    public async Task<ActionResult> GetMemberPhotos(string id)
     {
-        var photos = await memberRepository.GetAllMemberPhotosAsync(id);
+        var photos = await memberRepository.GetPhotosForMemberAsync(id);
         return Ok(photos);
     }
 
@@ -40,7 +43,7 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
         var member = await memberRepository.GetMemberForUpdate(input.id);
         if (member == null) return BadRequest("Can't Update Member!");
         var result = await photoService.UploadPhotoAsync(input.file);
-        if (result.Error != null) return BadRequest($"Cloudinary Error: {result.Error.Message}");
+        if (result.Error != null) return BadRequest($"Cloudinary Error: ");
 
         var photo = new Photo
         {
@@ -62,8 +65,10 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
 
     [HttpPost("set-main-photo")]
 
-    public async Task<ActionResult> SetMainPhoto(int photoId, string memberId)
+    public async Task<ActionResult> SetMainPhoto(int photoId)
+    
     {
+        var memberId = User.GetMemberId();
         var member = await memberRepository.GetMemberForUpdate(memberId);
         if (member == null) return BadRequest("Can't Update Member!");
         var photo = member.Photos.SingleOrDefault(p => p.Id == photoId);
@@ -84,8 +89,9 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
 
     [HttpDelete("delete-photo/{photoId}")]
 
-    public async Task<ActionResult> DeletePhoto(int photoId, string memberId)
+    public async Task<ActionResult> DeletePhoto(int photoId)
     {
+        var memberId = User.GetMemberId();
         var member = await memberRepository.GetMemberForUpdate(memberId);
         if (member == null) return BadRequest("Can't Update Member!");
         var photo = member.Photos.SingleOrDefault(p => p.Id == photoId);
@@ -98,7 +104,7 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
         if(photo.PublicID != null)
         {
             var result = await photoService.DeletePhotoAsync(photo.PublicID);
-            if (result.Error != null) return BadRequest($"Cloudinary Error: {result.Error.Message}");
+            if (result.Error != null) return BadRequest($"Cloudinary Error:");
         }
 
         member.Photos.Remove(photo);
@@ -106,4 +112,26 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
         return BadRequest("Problem Happened When Deleting The Photo");
     }
 
+    [HttpPut]
+    public async Task<ActionResult> UpdateMember(MemberUpdateDto memberUpdateDto)
+    {
+        var memberId = User.GetMemberId();
+
+        var member = await memberRepository.GetMemberForUpdate(memberId);
+
+        if (member == null) return BadRequest("Could not get member");
+
+        member.DisplayName = memberUpdateDto.DisplayName ?? member.DisplayName;
+        member.Description = memberUpdateDto.Description ?? member.Description;
+        member.City = memberUpdateDto.City ?? member.City;
+        member.Country = memberUpdateDto.Country ?? member.Country;
+
+        member.AppUser.Name = memberUpdateDto.DisplayName ?? member.AppUser.Name;
+
+        memberRepository.Update(member); // optional
+
+        if (await memberRepository.SaveAllAsync()) return NoContent();
+
+        return BadRequest("Failed to update member");
+    }
 }

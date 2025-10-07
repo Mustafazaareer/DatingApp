@@ -1,12 +1,11 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using AutoMapper;
+using DatingApp.Dtos;
+using DatingApp.Entities;
 using Microsoft.EntityFrameworkCore;
-using Task.Dtos;
-using Task.Entities;
 
-namespace Task.Data;
+namespace DatingApp.Data;
 
 public class Seed
 {

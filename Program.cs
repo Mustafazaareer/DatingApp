@@ -1,14 +1,14 @@
 using System.Text;
 using AutoMapper;
+using DatingApp.Data;
+using DatingApp.Helpers;
+using DatingApp.Interfaces;
+using DatingApp.Middlewares;
+using DatingApp.Profiles;
+using DatingApp.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Task.Data;
-using Task.Interfaces;
-using Task.Middlewares;
-using Task.Profiles;
-using Task.Services;
-using Task.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,15 +19,18 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
         options.JsonSerializerOptions.WriteIndented = true;
-    });builder.Services.AddDbContext<AppDbContext>(opt =>
-{
-    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+    });
+builder.Services.AddDbContext<AppDbContext>(opt =>
+    {
+        opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    });
 builder.Services.AddScoped<ITokenService,TokenService>();
 builder.Services.AddScoped<IPhotoService,PhotoService>();
 builder.Services.AddScoped<IMemberRepository,MemberRepository>();
+builder.Services.AddScoped<ILikesRepository,LikesRepository>();
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+builder.Services.AddScoped<LogUserActivity>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

@@ -1,17 +1,14 @@
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.AspNetCore.Http.HttpResults;
+using DatingApp.Data;
+using DatingApp.Dtos;
+using DatingApp.Entities;
+using DatingApp.Extensions;
+using DatingApp.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Task.Data;
-using Task.Dtos;
-using Task.Entities;
-using Task.Extensions;
-using Task.Interfaces;
 
-
-
-namespace Task.Controllers;
+namespace DatingApp.Controllers;
 
 public class AccountController(AppDbContext context,ITokenService tokenService) :BaseController
 {
@@ -20,8 +17,6 @@ public class AccountController(AppDbContext context,ITokenService tokenService) 
     {
         if (await EmailExiests(regesterDto.Email)) return BadRequest();
         
-        Console.WriteLine(await EmailExiests(regesterDto.Email));
-
         using var hmac = new HMACSHA512();
         var user = new AppUser
         {

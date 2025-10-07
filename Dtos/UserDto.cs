@@ -1,4 +1,4 @@
-namespace Task.Entities;
+namespace DatingApp.Entities;
 
 public class UserDto
 {

@@ -1,10 +1,9 @@
 using System.Net;
 using System.Text.Json;
-using Task.Entities;
-using Task.Errors;
+using DatingApp.Errors;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace Task.Middlewares;
+namespace DatingApp.Middlewares;
 
 public class ExceptionMiddleware(RequestDelegate next,ILogger<ExceptionMiddleware> logger , IHostEnvironment env)
 {

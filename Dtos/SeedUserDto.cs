@@ -1,4 +1,4 @@
-namespace Task.Dtos;
+namespace DatingApp.Dtos;
 
 public class SeedUserDto
 {

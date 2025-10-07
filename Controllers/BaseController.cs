@@ -1,7 +1,8 @@
+using DatingApp.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Task.Controllers;
-
+namespace DatingApp.Controllers;
+[ServiceFilter(typeof(LogUserActivity))]
 [ApiController]
 [Route("api/[controller]")]
 public class BaseController : ControllerBase

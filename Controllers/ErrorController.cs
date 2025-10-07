@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Task.Controllers;
+namespace DatingApp.Controllers;
 
 public class ErrorController : BaseController
 {
