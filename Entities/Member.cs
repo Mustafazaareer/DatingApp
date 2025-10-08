@@ -28,7 +28,7 @@ public class Member
     [JsonIgnore]
     public List<MemberLike> LikedMembers { get; set; } = [];
 
-    [JsonIgnore]
     [ForeignKey(nameof(Id))]
+    [JsonIgnore]
     public AppUser AppUser { get; set; } = null!;
 }

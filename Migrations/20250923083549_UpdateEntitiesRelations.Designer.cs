@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Task.Migrations
+namespace DatingApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20250923083549_UpdateEntitiesRelations")]
     partial class UpdateEntitiesRelations
     {
         /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.20");

@@ -11,5 +11,6 @@ public class Photo
     // Navigation Property :
     [JsonIgnore] // avoid cycles
     public Member Member { get; set; } = null!;
+    [JsonIgnore]
     public string MemberId { get; set; }
 }

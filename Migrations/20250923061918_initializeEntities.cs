@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Task.Migrations
+namespace DatingApp.Migrations
 {
     /// <inheritdoc />
     public partial class initializeEntities : Migration

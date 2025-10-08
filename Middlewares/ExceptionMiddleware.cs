@@ -5,7 +5,9 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace DatingApp.Middlewares;
 
-public class ExceptionMiddleware(RequestDelegate next,ILogger<ExceptionMiddleware> logger , IHostEnvironment env)
+
+public class ExceptionMiddleware(RequestDelegate next,
+    ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
 {
     public async System.Threading.Tasks.Task InvokeAsync(HttpContext context)
     {
@@ -13,24 +15,24 @@ public class ExceptionMiddleware(RequestDelegate next,ILogger<ExceptionMiddlewar
         {
             await next(context);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            logger.LogError(e,"Message",e.Message);
+            logger.LogError(ex, "{message}", ex.Message);
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            var result = env.IsDevelopment()
-                ? new ApiException(context.Response.StatusCode, e.Message, e.StackTrace)
-                : new ApiException(context.Response.StatusCode, e.Message, "Internal Server Error !");
+            var response = env.IsDevelopment()
+                ? new ApiException(context.Response.StatusCode, ex.Message, ex.StackTrace)
+                : new ApiException(context.Response.StatusCode, ex.Message, "Internal server error");
 
-            var options = new JsonSerializerOptions()
+            var options = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
-            var json = JsonSerializer.Serialize(result, options);
+
+            var json = JsonSerializer.Serialize(response, options);
 
             await context.Response.WriteAsync(json);
         }
-        
     }
 }

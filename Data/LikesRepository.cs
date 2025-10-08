@@ -1,37 +1,60 @@
 using DatingApp.Entities;
 using DatingApp.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace DatingApp.Data;
 
-public class LikesRepository : ILikesRepository
+public class LikesRepository(AppDbContext context) : ILikesRepository
 {
-    public Task<MemberLike> GetMemberLike(string sourceMemberId, string targetMemberId)
+    public async Task<MemberLike?> GetMemberLike(string sourceMemberId, string targetMemberId)
     {
-        throw new NotImplementedException();
+        return await context.Likes.FindAsync(sourceMemberId, targetMemberId);
     }
 
-    public Task<IReadOnlyList<Member>> GetMemberLikes(string predicate, string memberId)
+    public async Task<IReadOnlyList<Member>> GetMemberLikes(string predicate, string memberId)
     {
-        throw new NotImplementedException();
+        var query = context.Likes.AsQueryable();
+
+        switch (predicate)
+        {
+            case "liked" :
+                return await query
+                    .Where(m => m.SourceMemberId == memberId)
+                    .Select(x => x.TargetMember)
+                    .ToListAsync();
+            case "likedBy":
+                return await query
+                    .Where(m => m.TargetMemberId == memberId)
+                    .Select(x => x.SourceMember)
+                    .ToListAsync();
+            default:
+                var likedIds = await GetCurrentMemberLikeIds(memberId);
+                return await query
+                    .Where(x => x.TargetMemberId == memberId && likedIds.Contains(x.SourceMemberId))
+                    .Select(x => x.SourceMember)
+                    .ToListAsync();
+        }
     }
 
-    public Task<IReadOnlyList<string>> GetCurrentMemberLikeIds(string memberId)
+    public async Task<IReadOnlyList<string>> GetCurrentMemberLikeIds(string memberId)
     {
-        throw new NotImplementedException();
+        return await context.Likes
+            .Where(x => x.SourceMemberId == memberId)
+            .Select(x => x.TargetMemberId).ToListAsync();
     }
 
     public void DeleteLike(MemberLike like)
     {
-        throw new NotImplementedException();
+        context.Likes.Remove(like);
     }
 
     public void AddLike(MemberLike like)
     {
-        throw new NotImplementedException();
+        context.Likes.Add(like);
     }
 
-    public Task<bool> SaveAllChanges()
+    public async Task<bool> SaveAllChanges()
     {
-        throw new NotImplementedException();
+       return await context.SaveChangesAsync() > 0;
     }
 }

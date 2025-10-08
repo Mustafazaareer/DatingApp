@@ -40,25 +40,22 @@ public async Task<Member?> GetMemberForMemberUpdate(string id)
     {
         return await _context.SaveChangesAsync() > 0;
     }
-
-
-
+    
     public async Task<PaginatedResult<Member>>  GetMembersAsync(MemberParams memberParams)
     {
         var query = _context.Members.AsQueryable();
         query = query.Where(m => m.Id != memberParams.CurrentMemberId);
-        if (memberParams.Gender == null)
+        if (memberParams.Gender != null)
         {
-            query = query.Where(m => m.Gender != memberParams.Gender);
-
+            query = query.Where(m => m.Gender == memberParams.Gender);
+        
         }
         
-        var MinDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-memberParams.MaxAge - 1));
-        var MaxDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-memberParams.MinAge - 1));
-        Console.WriteLine(MinDob);
-        Console.WriteLine(MaxDob);
-        query = query.Where(x => x.DateOfBirth >= MinDob && x.DateOfBirth <= MaxDob);
+        var minDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-memberParams.MaxAge - 1));
+        var maxDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-memberParams.MinAge ));
+        query = query.Where(x => x.DateOfBirth >= minDob && x.DateOfBirth <= maxDob);
 
+        
         query = memberParams.OrderBy switch
         {
             "created" => query.OrderByDescending(x => x.CreatedAt),
