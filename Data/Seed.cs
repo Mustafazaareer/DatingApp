@@ -1,65 +1,71 @@
-using System.Security.Cryptography;
-using System.Text;
+
 using System.Text.Json;
 using DatingApp.Dtos;
 using DatingApp.Entities;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
-namespace DatingApp.Data;
+namespace API.Data;
 
 public class Seed
 {
-    public static async System.Threading.Tasks.Task SeedUsers(AppDbContext context)
+    public static async Task SeedUsers(UserManager<AppUser> userManager)
     {
-        if (await context.Users.AnyAsync()) return;
-        var membersData =await File.ReadAllTextAsync("Data/UserSeedData.json");
-        var members = JsonSerializer.Deserialize<List<SeedUserDto>>(membersData);
+
+        var memberData = await File.ReadAllTextAsync("Data/UserSeedData.json");
+        var members = JsonSerializer.Deserialize<List<SeedUserDto>>(memberData);
+
         if (members == null)
         {
-            Console.WriteLine("There Is No Members To Seed !");
+            Console.WriteLine("No members in seed data");
             return;
         }
 
         foreach (var member in members)
         {
-            using var hmac = new HMACSHA512();
-
             var user = new AppUser
             {
                 Id = member.Id,
                 Email = member.Email,
-                ImageUrl = member.ImageUrl,
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Pa$$w0rd")),
-                PasswordSalt = hmac.Key,
+                UserName = member.Email,
                 Name = member.DisplayName,
+                ImageUrl = member.ImageUrl,
                 Member = new Member
                 {
                     Id = member.Id,
                     DisplayName = member.DisplayName,
+                    Description = member.Description,
+                    DateOfBirth = member.DateOfBirth,
+                    ImageUrl = member.ImageUrl,
+                    Gender = member.Gender,
                     City = member.City,
                     Country = member.Country,
-                    CreatedAt = member.CreatedAt,
-                    DateOfBirth = member.DateOfBirth,
-                    Description = member.Description,
-                    Gender = member.Gender,
-                    ImageUrl = member.ImageUrl,
                     LastActive = member.LastActive,
+                    CreatedAt = member.CreatedAt
                 }
             };
+
             user.Member.Photos.Add(new Photo
             {
-                URL = member.ImageUrl,
+                URL = member.ImageUrl!,
                 MemberId = member.Id
             });
-            // var user = mapper.Map<AppUser>(member);
-            //
-            // user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Pa$$w0rd"));
-            // user.PasswordSalt = hmac.Key;
-            //
-            context.Users.Add(user);
-        }
-        
-        await context.SaveChangesAsync();
 
+            var result = await userManager.CreateAsync(user, "Pa$$w0rd");
+            if (!result.Succeeded)
+            {
+                Console.WriteLine(result.Errors.First().Description);
+            }
+            await userManager.AddToRoleAsync(user, "Member");
+        }
+
+        var admin = new AppUser
+        {
+            UserName = "admin@test.com",
+            Email = "admin@test.com",
+            Name = "Admin"
+        };
+
+        await userManager.CreateAsync(admin, "Pa$$w0rd");
+        await userManager.AddToRolesAsync(admin, ["Admin", "Moderator"]);
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DatingApp.Controllers;
@@ -23,5 +24,12 @@ public class ErrorController : BaseController
     public IActionResult GetBadRequest()
     {
         return BadRequest("It Was A Bad Request !");
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin-sercret")]
+    public ActionResult<string> GetSecretAdmin()
+    {
+        return Ok("Only Admins Allowed");
     }
 }

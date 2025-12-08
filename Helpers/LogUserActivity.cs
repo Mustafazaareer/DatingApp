@@ -11,7 +11,7 @@ public class LogUserActivity :IAsyncActionFilter
         ActionExecutionDelegate next)
     {
         var resultContext = await next();
-        if (context.HttpContext.User.Identity.IsAuthenticated != true) return;
+        if (context.HttpContext.User.Identity != null && context.HttpContext.User.Identity.IsAuthenticated != true) return;
         var memberId = resultContext.HttpContext.User.GetMemberId();
         var dbContext = resultContext.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
         await dbContext.Members

@@ -9,7 +9,7 @@ namespace DatingApp.Middlewares;
 public class ExceptionMiddleware(RequestDelegate next,
     ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
 {
-    public async System.Threading.Tasks.Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
     {
         try
         {

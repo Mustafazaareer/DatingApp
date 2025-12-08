@@ -4,10 +4,8 @@ namespace DatingApp.Dtos;
 
 public class LoginDto
 {
-    [Required]
     [EmailAddress]
-    public string Email { get; set; }
-    [Required]
+    public required string Email { get; set; }
     [MinLength(4)]
-    public string Password { get; set; }
+    public required string Password { get; set; }
 }

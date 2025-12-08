@@ -15,17 +15,14 @@ namespace DatingApp.Controllers;
         IPhotoService photoService, IMapper mapper) : BaseController
     {
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<MemberDto>>> GetMembers(
-                [FromQuery] MemberParams memberParams)
+        public async Task<ActionResult<IReadOnlyList<Member>>> GetMembers(
+            [FromQuery] MemberParams memberParams)
         {
             memberParams.CurrentMemberId = User.GetMemberId();
 
-            var members = await memberRepository.GetMembersAsync(memberParams);
-            var result = mapper.Map<IReadOnlyList<MemberDto>>(members);
-
-            return Ok(result);
+            return Ok(await memberRepository.GetMembersAsync(memberParams));
         }
-
+        
         [HttpGet("{id}")]
         public async Task<ActionResult<MemberDto>> GetMember(string id)
         {
@@ -109,9 +106,7 @@ namespace DatingApp.Controllers;
             var member = await memberRepository.GetMemberForUpdate(User.GetMemberId());
 
             if (member == null) return BadRequest("Cannot get member from token");
-
             var photo = member.Photos.SingleOrDefault(x => x.Id == photoId);
-
             if (member.ImageUrl == photo?.URL || photo == null)
             {
                 return BadRequest("Cannot set this as main image");

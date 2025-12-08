@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DatingApp.Helpers;
 
+
 public class PaginatedResult<T>
 {
     public PaginationMetadata Metadata { get; set; } = default!;

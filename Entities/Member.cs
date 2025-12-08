@@ -5,7 +5,7 @@ namespace DatingApp.Entities;
 
 public class Member
 {
-    public string Id { get; set; } = null!;
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     public DateOnly DateOfBirth { get; set; }
     public string? ImageUrl { get; set; }
     public required string DisplayName { get; set; }
@@ -15,10 +15,9 @@ public class Member
     public string? Description { get; set; }
     public required string City { get; set; }
     public required string Country { get; set; }
-
     // Navigation property
     [JsonIgnore]
-    public string UserId { get; set; }
+    public string? UserId { get; set; }
     [JsonIgnore]
     public List<Photo> Photos { get; set; } = [];
     
@@ -27,6 +26,13 @@ public class Member
     
     [JsonIgnore]
     public List<MemberLike> LikedMembers { get; set; } = [];
+    
+
+    [JsonIgnore]
+    public List<Message> MessagesSent { get; set; } = [];
+
+    [JsonIgnore]
+    public List<Message> MessagesReceived { get; set; } = [];
 
     [ForeignKey(nameof(Id))]
     [JsonIgnore]

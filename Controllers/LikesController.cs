@@ -1,4 +1,5 @@
 using DatingApp.Data;
+using DatingApp.Dtos;
 using DatingApp.Entities;
 using DatingApp.Extensions;
 using DatingApp.Interfaces;
@@ -9,7 +10,7 @@ namespace DatingApp.Controllers;
 public class LikesController(ILikesRepository likesRepository):BaseController
 {
     [HttpPost("{targetMemberId}")]
-    public async Task<ActionResult> ToggleLike(string targetMemberId)
+    public async Task<ActionResult<MemberDto>> ToggleLike(string targetMemberId)
     {
         var sourceMemberId = User.GetMemberId();
         if (sourceMemberId == targetMemberId)
@@ -46,9 +47,9 @@ public class LikesController(ILikesRepository likesRepository):BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<Member>>> GetMemberLiks(string predicate)
+    public async Task<ActionResult<IReadOnlyList<Member>>> GetMemberLikes(string predicate)
     {
-        return Ok(await likesRepository.GetMemberLike(User.GetMemberId(),predicate));
+        return Ok( await likesRepository.GetMemberLikes(predicate,User.GetMemberId()));
     }
 
 }

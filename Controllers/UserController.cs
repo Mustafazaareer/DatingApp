@@ -12,6 +12,18 @@ namespace DatingApp.Controllers;
 [Route("api/[controller]")]
 public class UsersController(AppDbContext context) : ControllerBase
 {
+    // [HttpPost]
+    // public ActionResult<UserDto> CreateUser(UserDto user)
+    // {
+    //     var usr = new AppUser
+    //     {       
+    //         Name = user.Name,
+    //         Email = user.Email,
+    //         pa
+    //     };
+    //     context.Users.Add()
+    // }
+    
     [HttpGet]
     public ActionResult<List<AppUser>> GetUsers()
     {

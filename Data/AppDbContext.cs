@@ -1,52 +1,64 @@
 using AutoMapper.Execution;
 using DatingApp.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Member = DatingApp.Entities.Member;
 
 namespace DatingApp.Data;
 
-public class AppDbContext : DbContext
-{
-    public AppDbContext(DbContextOptions<AppDbContext> options): base(options)
-    {
-        
-    }
 
-    public DbSet<AppUser> Users { get; set; }
+public class AppDbContext(DbContextOptions options) : IdentityDbContext<AppUser>(options)
+{
     public DbSet<Member> Members { get; set; }
     public DbSet<Photo> Photos { get; set; }
     public DbSet<MemberLike> Likes { get; set; }
+    public DbSet<Message> Messages { get; set; }
 
-    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AppUser>()
-            .HasOne(u => u.Member)
-            .WithOne(p => p.AppUser)
-            .HasForeignKey<Member>(p => p.UserId);
-
-        modelBuilder.Entity<MemberLike>()
-            .HasKey(m => new { m.SourceMemberId, m.TargetMemberId });
-        
-        modelBuilder.Entity<MemberLike>()
-            .HasOne(u => u.SourceMember)
-            .WithMany(p => p.LikedMembers)
-            .HasForeignKey(p => p.SourceMemberId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
-        modelBuilder.Entity<MemberLike>()
-            .HasOne(u => u.TargetMember)
-            .WithMany(p => p.LikedByMembers)
-            .HasForeignKey(p => p.TargetMemberId)
-            .OnDelete(DeleteBehavior.NoAction);
-        
-
         base.OnModelCreating(modelBuilder);
 
-        var dateTimeConverter = new ValueConverter<DateTime,DateTime>(
+        modelBuilder.Entity<IdentityRole>()
+            .HasData(
+                new IdentityRole{Id = "member-id",Name = "Member", NormalizedName = "MEMBER"},
+                new IdentityRole{Id = "moderator-id",Name = "Moderator", NormalizedName = "MODERATOR"},
+                new IdentityRole{Id = "admin-id",Name = "Admin", NormalizedName = "ADMIN"}
+            );
+        modelBuilder.Entity<MemberLike>()
+            .HasKey(x => new { x.SourceMemberId, x.TargetMemberId });
+
+        modelBuilder.Entity<MemberLike>()
+            .HasOne(s => s.SourceMember)
+            .WithMany(t => t.LikedMembers)
+            .HasForeignKey(s => s.SourceMemberId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MemberLike>()
+            .HasOne(s => s.TargetMember)
+            .WithMany(t => t.LikedByMembers)
+            .HasForeignKey(s => s.TargetMemberId)
+            .OnDelete(DeleteBehavior.NoAction);
+        
+        modelBuilder.Entity<Message>()
+            .HasOne(x => x.Recipient)
+            .WithMany(m => m.MessagesReceived)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Message>()
+            .HasOne(x => x.Sender)
+            .WithMany(m => m.MessagesSent)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
             v => v.ToUniversalTime(),
-            v => DateTime.SpecifyKind(v,DateTimeKind.Utc)
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+        );
+        
+        var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
+            v =>v.HasValue ? v.Value.ToUniversalTime():null,
+            v =>v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc):null
         );
 
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
@@ -56,6 +68,11 @@ public class AppDbContext : DbContext
                 if (property.ClrType == typeof(DateTime))
                 {
                     property.SetValueConverter(dateTimeConverter);
+                }
+                else if (property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(dateTimeConverter);
+
                 }
             }
         }

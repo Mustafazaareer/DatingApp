@@ -1,18 +1,17 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Identity;
 
 namespace DatingApp.Entities;
 
-public class AppUser
-{
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+public class AppUser : IdentityUser
+{   
     public required string Name { get; set; }
-    public required string Email { get; set; }
     public string? ImageUrl { get; set; }
-    public required byte[] PasswordHash { get; set; }
-    public required byte[] PasswordSalt { get; set; }
+    public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiry { get; set; }
 
     // Nav property
-    [JsonIgnore]
     public Member Member { get; set; } = null!;
 }
